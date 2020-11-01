@@ -1,9 +1,9 @@
-provider "aws"{
+provider "aws"  {
     profile = var.profile
     region = var.region-master
     alias = "region-master"
 }
- provider "aws"{
+provider "aws" {
      profile = var.profile
      region = var.region-worker
      alias = "region-worker"
