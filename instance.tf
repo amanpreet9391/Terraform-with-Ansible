@@ -23,3 +23,32 @@ resource "aws_key_pair" "worker-keys"{
     key_name = "jenkins"
     public_key = file("~/.ssh/terraform_key.pub")
 }
+
+resource "aws_instance" "jenkins-master"{
+    provider = aws.region_master
+    ami = data.aws_ssm_parameter.linux-ami.value
+    key_name = aws_key_pair.master-keys.key_name
+    subnet_id = aws_subnet.master-sn-1.id
+    instance_type = var.instance-type
+    associate_public_ip_address = true
+    vpc_security_group_ids = [aws_security_group.jenkins-master-sg.id]
+    tags = {
+      Name = "Jenkins-master"
+    }
+    depends_on = [aws_main_route_table_association.master-default-RT-association]
+}
+
+resource "aws_instance" "jenkins-worker"{
+    provider = aws.region_worker
+    count = var.worker_count
+    ami = data.aws_ssm_parameter.linux-ami-oregon.value
+    key_name = aws_key_pair.worker-keys.key_name
+    subnet_id = aws_subnet.worker-sn-1.id
+    instance_type = var.instance-type
+    associate_public_ip_address = true
+    vpc_security_group_ids = [aws_security_group.jenkins-worker-sg.id]
+    tags = {
+      Name = join("-",["jenkins-worker",count.index+1])
+    }
+    depends_on = [aws_main_route_table_association.worker-default-RT-association, aws_instance.jenkins-master]
+}
