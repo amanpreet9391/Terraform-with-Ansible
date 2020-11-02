@@ -29,3 +29,11 @@ variable "webserver-port"{
     type = number
     default = 80
 }
+variable "dns-name" {
+    type = string
+    default = "mypersonalproject.info."
+}
+variable "site-name"{
+    type = string
+    default = "jenkins"
+}
